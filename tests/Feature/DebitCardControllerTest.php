@@ -69,7 +69,10 @@ class DebitCardControllerTest extends TestCase
 
     public function testCustomerCanActivateADebitCard()
     {
-        // put api/debit-cards/{debitCard}
+        $card = DebitCard::factory()->create(['user_id' => $this->user->id, 'disabled_at' => now()]);
+
+        $response = $this->putJson("/api/debit-cards/{$card->id}", ['is_active' => true]);
+        $response->assertOk()->assertJsonFragment(['is_active' => true]);
     }
 
     public function testCustomerCanDeactivateADebitCard()

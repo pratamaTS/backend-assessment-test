@@ -70,7 +70,10 @@ class DebitCardTransactionControllerTest extends TestCase
 
     public function testCustomerCanSeeADebitCardTransaction()
     {
-        // get /debit-card-transactions/{debitCardTransaction}
+        $txn = DebitCardTransaction::factory()->create(['debit_card_id' => $this->debitCard->id]);
+
+        $response = $this->getJson("/api/debit-card-transactions/{$txn->id}");
+        $response->assertOk()->assertJsonFragment(['amount' => $txn->amount]);
     }
 
     public function testCustomerCannotSeeADebitCardTransactionAttachedToOtherCustomerDebitCard()

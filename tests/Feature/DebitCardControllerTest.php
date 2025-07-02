@@ -111,5 +111,14 @@ class DebitCardControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function testCannotCreateDuplicateDebitCardInShortTime()
+    {
+        $this->actingAs($this->user);
+        $this->postJson('/api/debit-cards', ['type' => 'VISA']);
+
+        $response = $this->postJson('/api/debit-cards', ['type' => 'VISA']);
+        $response->assertStatus(429); // or custom error if rate limit applied
+    }
+
     // Extra bonus for extra tests :)
 }

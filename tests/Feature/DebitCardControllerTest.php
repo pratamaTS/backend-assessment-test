@@ -136,4 +136,15 @@ class DebitCardControllerTest extends TestCase
         $this->assertNotNull($card->fresh()->disabled_at);
     }
 
+    public function testUserCannotUpdateOrDeleteOtherUsersDebitCard()
+    {
+        $otherCard = DebitCard::factory()->create();
+        $this->actingAs($this->user);
+
+        $this->putJson("/api/debit-cards/{$otherCard->id}", ['is_active' => false])
+            ->assertStatus(403);
+
+        $this->deleteJson("/api/debit-cards/{$otherCard->id}")
+            ->assertStatus(403);
+    }
 }

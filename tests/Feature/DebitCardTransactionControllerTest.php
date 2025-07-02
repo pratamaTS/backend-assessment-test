@@ -117,5 +117,22 @@ class DebitCardTransactionControllerTest extends TestCase
         $response->assertStatus(400);
     }
 
+    public function testTransactionAmountIsStoredCorrectly()
+    {
+        $this->actingAs($this->user);
+
+        $response = $this->postJson('/api/debit-card-transactions', [
+            'debit_card_id' => $this->debitCard->id,
+            'amount' => 50000,
+            'currency_code' => 'IDR',
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('debit_card_transactions', [
+            'debit_card_id' => $this->debitCard->id,
+            'amount' => 50000,
+            'currency_code' => 'IDR',
+        ]);
+    }
 
 }

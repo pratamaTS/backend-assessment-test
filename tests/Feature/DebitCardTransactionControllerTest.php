@@ -99,4 +99,23 @@ class DebitCardTransactionControllerTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function testCannotCreateTransactionToInactiveCard()
+    {
+        $inactiveCard = DebitCard::factory()->create([
+            'user_id' => $this->user->id,
+            'disabled_at' => now(),
+        ]);
+
+        $this->actingAs($this->user);
+
+        $response = $this->postJson('/api/debit-card-transactions', [
+            'debit_card_id' => $inactiveCard->id,
+            'amount' => 1000,
+            'currency_code' => 'IDR',
+        ]);
+
+        $response->assertStatus(400);
+    }
+
+
 }

@@ -35,11 +35,12 @@ class LoanService
                 'status' => Loan::STATUS_DUE,
             ]);
 
-            // Calculate repayment per term
+            // Calculate repayment per term and spread remainder over first terms
             $baseAmount = intdiv($amount, $terms);
             $remainder = $amount % $terms;
 
             for ($i = 1; $i <= $terms; $i++) {
+                // Distribute the remainder to the first $remainder terms
                 $installment = $baseAmount + ($i === $terms ? $remainder : 0);
 
                 $loan->scheduledRepayments()->create([
@@ -68,7 +69,6 @@ class LoanService
     public function repayLoan(Loan $loan, int $amount, string $currencyCode, string $receivedAt): ReceivedRepayment
     {
         return DB::transaction(function () use ($loan, $amount, $currencyCode, $receivedAt) {
-            // Log received repayment
             $received = $loan->receivedRepayments()->create([
                 'amount' => $amount,
                 'currency_code' => $currencyCode,
@@ -76,7 +76,13 @@ class LoanService
             ]);
 
             $remaining = $amount;
-            foreach ($loan->scheduledRepayments()->where('status', '!=', ScheduledRepayment::STATUS_REPAID)->orderBy('due_date') as $repayment) {
+
+            foreach (
+                $loan->scheduledRepayments()
+                    ->where('status', '!=', ScheduledRepayment::STATUS_REPAID)
+                    ->orderBy('due_date')
+                    ->get() as $repayment
+            ) {
                 if ($remaining <= 0) break;
 
                 if ($remaining >= $repayment->outstanding_amount) {
@@ -94,7 +100,6 @@ class LoanService
                 }
             }
 
-            // Update loan
             $loan->refresh();
             $newOutstanding = $loan->scheduledRepayments()->sum('outstanding_amount');
             $loan->update([
@@ -102,7 +107,7 @@ class LoanService
                 'status' => $newOutstanding > 0 ? Loan::STATUS_DUE : Loan::STATUS_REPAID,
             ]);
 
-            return $loan->fresh();
+            return $received;
         });
     }
 }

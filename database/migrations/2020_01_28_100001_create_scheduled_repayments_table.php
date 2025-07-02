@@ -19,7 +19,7 @@ class CreateScheduledRepaymentsTable extends Migration
 
             // TODO: Add missing columns here
             $table->integer('amount');
-            $table->integer('outstanding_amount');
+            $table->integer('outstanding_amount')->default(0);
             $table->string('currency_code');
             $table->date('due_date');
             $table->string('status');

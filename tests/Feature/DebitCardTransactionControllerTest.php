@@ -78,7 +78,11 @@ class DebitCardTransactionControllerTest extends TestCase
 
     public function testCustomerCannotSeeADebitCardTransactionAttachedToOtherCustomerDebitCard()
     {
-        // get /debit-card-transactions/{debitCardTransaction}
+        $otherCard = DebitCard::factory()->create();
+        $txn = DebitCardTransaction::factory()->create(['debit_card_id' => $otherCard->id]);
+
+        $response = $this->getJson("/api/debit-card-transactions/{$txn->id}");
+        $response->assertForbidden();
     }
 
     // Extra bonus for extra tests :)

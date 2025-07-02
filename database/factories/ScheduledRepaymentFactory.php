@@ -25,8 +25,8 @@ class ScheduledRepaymentFactory extends Factory
         return [
             // TODO: Complete factory
             'loan_id' => Loan::factory(),
-            'amount' => $this->faker->numberBetween(1000, 5000),
-            'outstanding_amount' => $this->faker->numberBetween(1000, 5000),
+            'amount' => $this->faker->numberBetween(1000, 10000),
+            'outstanding_amount' => $this->faker->numberBetween(1000, 10000),
             'currency_code' => 'VND',
             'due_date' => $this->faker->dateTimeBetween('+1 week', '+3 months')->format('Y-m-d'),
             'status' => 'due',

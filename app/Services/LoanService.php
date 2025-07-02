@@ -35,7 +35,6 @@ class LoanService
                 'status' => Loan::STATUS_DUE,
             ]);
 
-            // Hitung cicilan rata, dan distribusi sisa
             $base = intdiv($amount, $terms);
             $remainder = $amount % $terms;
 

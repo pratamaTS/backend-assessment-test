@@ -111,14 +111,29 @@ class DebitCardControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
+
+    // Extra bonus for extra tests :)
     public function testCannotCreateDuplicateDebitCardInShortTime()
     {
         $this->actingAs($this->user);
         $this->postJson('/api/debit-cards', ['type' => 'VISA']);
 
         $response = $this->postJson('/api/debit-cards', ['type' => 'VISA']);
-        $response->assertStatus(429); // or custom error if rate limit applied
+        $response->assertStatus(429);
     }
 
-    // Extra bonus for extra tests :)
+    public function testDeactivateAlreadyInactiveCardDoesNotChangeState()
+    {
+        $card = DebitCard::factory()->create([
+            'user_id' => $this->user->id,
+            'disabled_at' => now(),
+        ]);
+
+        $this->actingAs($this->user);
+        $response = $this->putJson("/api/debit-cards/{$card->id}", ['is_active' => false]);
+
+        $response->assertOk();
+        $this->assertNotNull($card->fresh()->disabled_at);
+    }
+
 }
